@@ -32,12 +32,10 @@ namespace rabbit_chat.Controllers
             db.SaveChanges();
         }
 
-        [HttpGet]
+        [HttpGet("fullunit")]
         public ActUnit GetUnitWithEverything()
         {
             using var db = new RabbitChatContext();
-            
-            
             var totalUnit = db.ActUnits.Include(u => u.ActUnitRooms).First();
             var finalUnit = new ActUnit
             {
@@ -50,20 +48,22 @@ namespace rabbit_chat.Controllers
                 finalUnit.ActUnitRooms.Add(db.ActRooms.Include(v => v.ActRoomBeds).Single(z => z.ActRoomId == room.ActRoomId));
             }
             return finalUnit;
-            
-            
-            /*
-            var totalUnit = db.ActUnits.Include(u => u.ActUnitRooms)
-                .Include(z => z.)
-                .First();
-
-            
-            
-            return new ActUnit
+        }
+        
+        [HttpGet("fullbed")]
+        public ActBed GetBedWithEverything()
+        {
+            using var db = new RabbitChatContext();
+            var test = db.ActBeds.First();
+            var test1 = db.ActRooms.First(x => x.ActRoomBeds.Contains(test));
+            var bed = new ActBed
             {
-                A
-            }
-            */
+                ActBedId = test.ActBedId,
+                ActBedName = test.ActBedName,
+                ActRoom = test1,
+                ActUnit = db.ActUnits.First(x => x.ActUnitRooms.Contains(test1))
+            };
+            return bed;
         }
     }
 }

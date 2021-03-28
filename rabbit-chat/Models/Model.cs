@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using Microsoft.EntityFrameworkCore;
 
 namespace rabbit_chat.Models
@@ -11,6 +12,7 @@ namespace rabbit_chat.Models
         public DbSet<Room> Rooms { get; set; }
         
         // ***** TESTING FOR ACTIUM CONVERSION TO EF CORE *****
+        
         public DbSet<ActInfection> ActInfections { get; set; }
         public DbSet<ActWorkflow> ActWorkflows { get; set; }
         public DbSet<ActBed> ActBeds { get; set; }
@@ -62,6 +64,10 @@ namespace rabbit_chat.Models
     {
         public int ActBedId { get; set; }
         public string ActBedName { get; set; }
+        [NotMapped]
+        public ActRoom ActRoom { get; set; }
+        [NotMapped]
+        public ActUnit ActUnit { get; set; }
         
         public ActInfection ActBedInfection { get; set; }
         public ActWorkflow ActBedWorkflow { get; set; }
