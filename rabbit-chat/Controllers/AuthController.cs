@@ -24,7 +24,6 @@ namespace rabbit_chat.Controllers
                 Console.WriteLine(e);
                 throw;
             }
-
         }
     }
 }

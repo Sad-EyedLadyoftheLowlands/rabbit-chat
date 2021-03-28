@@ -1,5 +1,4 @@
 using System;
-using rabbit_chat.Rooms;
 using Xunit;
 
 namespace rabbit_chat_test
