@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using rabbit_chat.Models;
 
 namespace rabbit_chat.Migrations
 {
     [DbContext(typeof(RabbitChatContext))]
-    partial class RabbitChatContextModelSnapshot : ModelSnapshot
+    [Migration("20210328162131_ActiumTestingBetterer")]
+    partial class ActiumTestingBetterer
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

@@ -6,24 +6,20 @@ namespace rabbit_chat.Models
 {
     public class RabbitChatContext : DbContext
     {
-        public DbSet<Blog> Blogs { get; set; }
-        public DbSet<Post> Posts { get; set; }
-        public DbSet<Test> Tests { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<RabbitUser> RabbitUsers { get; set; }
         public DbSet<Room> Rooms { get; set; }
-        public DbSet<RabbitUserRoom> RabbitUserRooms { get; set; }
+        
+        // ***** TESTING FOR ACTIUM CONVERSION TO EF CORE *****
+        public DbSet<ActInfection> ActInfections { get; set; }
+        public DbSet<ActWorkflow> ActWorkflows { get; set; }
+        public DbSet<ActBed> ActBeds { get; set; }
+        public DbSet<ActRoom> ActRooms { get; set; }
+        public DbSet<ActUnit> ActUnits { get; set; }
+
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite("Data Source=rabbit-chat.db");
-    }
-    
-    public class Blog
-    {
-        public int BlogId { get; set; }
-        public string Url { get; set; }
-
-        public List<Post> Posts { get; } = new List<Post>();
     }
 
     public class Message
@@ -47,13 +43,6 @@ namespace rabbit_chat.Models
         public ICollection<RabbitUser> Friends { get; set; }
     }
 
-    /*
-    public class Friend
-    {
-        public int Friend
-    }
-    */
-    
     public class Room
     {
         public int RoomId { get; set; }
@@ -68,26 +57,45 @@ namespace rabbit_chat.Models
         */
     }
 
-    public class RabbitUserRoom
+    // ***** TESTING FOR ACTIUM CONVERSION TO EF CORE *****
+    public class ActBed
     {
-        public int RabbitUserRoomId { get; set; }
-        public int RoomId { get; set; }
-        public int RabbitUserId { get; set; }
+        public int ActBedId { get; set; }
+        public string ActBedName { get; set; }
+        
+        public ActInfection ActBedInfection { get; set; }
+        public ActWorkflow ActBedWorkflow { get; set; }
+    }
+
+    public class ActUnit
+    {
+        public int ActUnitId { get; set; }
+        public string ActUnitName { get; set; }
+        
+        public ICollection<ActRoom> ActUnitRooms { get; set; }
+        
+    }
+
+    public class ActInfection
+    {
+        public int ActInfectionId { get; set; }
+        public string ActInfectionName { get; set; }
+    }
+
+    public class ActRoom
+    {
+        public int ActRoomId { get; set; }
+        public string ActRoomName { get; set; }
+        
+        public ICollection<ActBed> ActRoomBeds { get; set; }
+    }
+
+    public class ActWorkflow
+    {
+        public int ActWorkflowId { get; set; }
+        public string ActWorkflowText { get; set; }
     }
     
-    public class Post
-    {
-        public int PostId { get; set; }
-        public string Title { get; set; }
-        public string Content { get; set; }
+    // ***** END OF TESTING FOR ACTIUM CONVERSION TO EF CORE *****
 
-        public int BlogId { get; set; }
-        public Blog Blog { get; set; }
-    }
-
-    public class Test
-    {
-        public int TestId { get; set; }
-        public string TestString { get; set; }
-    }
 }
