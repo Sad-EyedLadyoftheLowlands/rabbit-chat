@@ -1,0 +1,1 @@
+- Use dependency injection for DatabaseContext instead of creating a new object each time.
