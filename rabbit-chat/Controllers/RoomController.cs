@@ -1,9 +1,13 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using rabbit_chat.Migrations;
 using rabbit_chat.Models;
 using rabbit_chat.Models.Requests;
+using rabbit_chat.Services;
 
 namespace rabbit_chat.Controllers
 {
@@ -13,27 +17,24 @@ namespace rabbit_chat.Controllers
     {
         /*
         TODO: This is merely a demo, completely retarded. It returns all private rooms.
+        TODO: Why the hell am I sending whole user objects instead of just ID's?
+        
+        This will only ever be called when we are certain that there should be a private room.
+        Thus, here we can perform the check of does exist? and create and return if not.
+        
+        What is this supposed to be doing?
+        
+        Search for single room that has only two users and both of those are ID'd in the request.
          */
         [HttpGet]
-        public Room OpenPersonalRoom(SimpleOpenPersonalRoomRequest soprRequest)
+        public ObjectResult OpenPersonalRoom(SimpleOpenPersonalRoomRequest soprRequest)
         {
-            using var db = new RabbitChatContext();
-            // var x = db.Rooms.Include(room => room.Users).Any(room => room.Users.Count == 2)
-            var t = db.Rooms.Include(room => room.Users).ToList();
-
-            Room room = null;
-            foreach (var a in t)
-            {
-                // if (a.Users.Count == 2 && a.Users.Contains(soprRequest.RequestUser) && a.Users.Contains(soprRequest.Friend))
-                if (a.Users.Count == 2 ) // && a.Users.Contains(soprRequest.RequestUser) && a.Users.Contains(soprRequest.Friend)
-                {
-                    room = a;
-                }
-            }
-
-            return room;
+            return new ObjectResult(RoomService.OpenPersonalRoom(soprRequest));
         }
 
+        /*
+         * Possibly should return room so the above method does not need another query.
+         */
         [HttpPut]
         public void CreatePersonalRoom(SimpleCreatePersonalRoomRequest scprRequest)
         {

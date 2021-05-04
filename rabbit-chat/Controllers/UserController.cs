@@ -20,6 +20,7 @@ namespace rabbit_chat.Controllers
             return db.RabbitUsers.Include(user => user.Friends).Single(user => user.RabbitUserId == userId).Friends.ToList();
         }
 
+        // TODO: Populate friends
         [HttpGet("singleuser")]
         public RabbitUser GetUser([FromBody] int userId)
         {

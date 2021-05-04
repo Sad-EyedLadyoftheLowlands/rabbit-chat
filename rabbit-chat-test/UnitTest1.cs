@@ -9,6 +9,7 @@ namespace rabbit_chat_test
         public void Test1()
         {
             var test = new DateTime();
+            var x = "";
         }
     }
 }
