@@ -37,6 +37,7 @@ namespace rabbit_chat.Models
         public DateTime? TimeSent { get; set; }
         public string MessageContent { get; set; }
         
+        // ***** RELATIONSHIPS *****
         public int RoomId { get; set; }
     }
 
@@ -49,6 +50,7 @@ namespace rabbit_chat.Models
         public string RefreshToken { get; set; }
         public string Alias { get; set; }
         
+        // ***** RELATIONSHIPS *****
         public ICollection<RabbitUserRoom> RoomLink { get; set; }
         public ICollection<RabbitUser> Friends { get; set; }
     }
@@ -58,15 +60,16 @@ namespace rabbit_chat.Models
         public int RoomId { get; set; }
         public string RoomName { get; set; }
 
+        // ***** RELATIONSHIPS *****
         public ICollection<RabbitUserRoom> RabbitUserLink { get; set; }
+        public ICollection<Message> Messages { get; set; }
     }
 
     public class RabbitUserRoom
     {
         public int RabbitUserId { get; set; }
         public int RoomId { get; set; }
-        // public byte Order { get; set; }
-        
+
         public RabbitUser RabbitUser { get; set; }
         public Room Room { get; set; }
     }

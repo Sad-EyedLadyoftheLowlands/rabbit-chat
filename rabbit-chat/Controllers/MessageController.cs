@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using rabbit_chat.Migrations;
 using rabbit_chat.Models.Requests;
 using rabbit_chat.Models;
 
@@ -16,34 +17,32 @@ namespace rabbit_chat.Controllers
         public void CreateMessage(CreateMessageRequest createMessageRequest)
         {
             using var db = new RabbitChatContext();
-            db.Add(new Message
+            var room = db.Rooms.Include(x => x.Messages)
+                .First(x => x.RoomId == createMessageRequest.RoomId);
+            
+            room.Messages.Add(new Message
             {
-                RabbitUserId = createMessageRequest.SendingUserId,
                 MessageContent = createMessageRequest.Content,
-                // RoomId = createMessageRequest.RoomId,
-                TimeSent = DateTime.Now,
-                
+                RabbitUserId = createMessageRequest.SendingUserId,
+                TimeSent = DateTime.Now
             });
+
             db.SaveChanges();
         }
-
-        [HttpGet]
-        public List<Message> GetAllMessagesFromRoom([FromBody] int roomId)
-        {
-            using var db = new RabbitChatContext();
-            return db.Messages.Where(message => message.MessageId == roomId).ToList();
-        }
         
-        [HttpGet]
-        public void TestGetMessagesFromRoom([FromBody] int roomId)
+        /// <summary>
+        /// Returns all messages by room ID.
+        /// </summary>
+        /// <param name="roomId"></param>
+        /// <returns></returns>
+        [HttpGet("{roomId}")]
+        public List<Message> GetAllMessagesFromRoom(int roomId)
         {
             using var db = new RabbitChatContext();
-            // var test = db.Rooms.Include(x => x.Messages).Where(y => y.RoomId == roomId).Select(new Message());
-            // var test = db.Rooms.Join(Messages, room => room.RoomId,  )
-
-            // var x = db.Messages.Where(x => x.RoomId )
+            var room = db.Rooms.Include(x => x.Messages)
+                .First(x => x.RoomId == roomId);
             
-            // var query = from db.Roo
+            return room.Messages.ToList();
         }
     }
 }
