@@ -2,15 +2,17 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using rabbit_chat.Models;
 
 namespace rabbit_chat.Migrations
 {
     [DbContext(typeof(RabbitChatContext))]
-    partial class RabbitChatContextModelSnapshot : ModelSnapshot
+    [Migration("20210504163259_RemoveRoomIdFromMessage")]
+    partial class RemoveRoomIdFromMessage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -118,13 +120,15 @@ namespace rabbit_chat.Migrations
                     b.Property<int>("RabbitUserId")
                         .HasColumnType("INTEGER");
 
-                    b.Property<int>("RoomId")
+                    b.Property<int?>("RoomId")
                         .HasColumnType("INTEGER");
 
                     b.Property<DateTime?>("TimeSent")
                         .HasColumnType("TEXT");
 
                     b.HasKey("MessageId");
+
+                    b.HasIndex("RoomId");
 
                     b.ToTable("Messages");
                 });
@@ -147,6 +151,9 @@ namespace rabbit_chat.Migrations
                     b.Property<string>("RefreshToken")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("RoomId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Token")
                         .HasColumnType("TEXT");
 
@@ -157,22 +164,9 @@ namespace rabbit_chat.Migrations
 
                     b.HasIndex("RabbitUserId1");
 
+                    b.HasIndex("RoomId");
+
                     b.ToTable("RabbitUsers");
-                });
-
-            modelBuilder.Entity("rabbit_chat.Models.RabbitUserRoom", b =>
-                {
-                    b.Property<int>("RoomId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("RabbitUserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("RoomId", "RabbitUserId");
-
-                    b.HasIndex("RabbitUserId");
-
-                    b.ToTable("RabbitUserRoom");
                 });
 
             modelBuilder.Entity("rabbit_chat.Models.Room", b =>
@@ -215,30 +209,22 @@ namespace rabbit_chat.Migrations
                         .HasForeignKey("ActUnitId");
                 });
 
+            modelBuilder.Entity("rabbit_chat.Models.Message", b =>
+                {
+                    b.HasOne("rabbit_chat.Models.Room", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("RoomId");
+                });
+
             modelBuilder.Entity("rabbit_chat.Models.RabbitUser", b =>
                 {
                     b.HasOne("rabbit_chat.Models.RabbitUser", null)
                         .WithMany("Friends")
                         .HasForeignKey("RabbitUserId1");
-                });
 
-            modelBuilder.Entity("rabbit_chat.Models.RabbitUserRoom", b =>
-                {
-                    b.HasOne("rabbit_chat.Models.RabbitUser", "RabbitUser")
-                        .WithMany("RoomLink")
-                        .HasForeignKey("RabbitUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("rabbit_chat.Models.Room", "Room")
-                        .WithMany("RabbitUserLink")
-                        .HasForeignKey("RoomId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("RabbitUser");
-
-                    b.Navigation("Room");
+                    b.HasOne("rabbit_chat.Models.Room", null)
+                        .WithMany("Users")
+                        .HasForeignKey("RoomId");
                 });
 
             modelBuilder.Entity("rabbit_chat.Models.ActRoom", b =>
@@ -254,13 +240,13 @@ namespace rabbit_chat.Migrations
             modelBuilder.Entity("rabbit_chat.Models.RabbitUser", b =>
                 {
                     b.Navigation("Friends");
-
-                    b.Navigation("RoomLink");
                 });
 
             modelBuilder.Entity("rabbit_chat.Models.Room", b =>
                 {
-                    b.Navigation("RabbitUserLink");
+                    b.Navigation("Messages");
+
+                    b.Navigation("Users");
                 });
 #pragma warning restore 612, 618
         }

@@ -7,9 +7,9 @@ namespace rabbit_chat.Models
 {
     public class RabbitChatContext : DbContext
     {
-        public DbSet<Message> Messages { get; set; }
         public DbSet<RabbitUser> RabbitUsers { get; set; }
         public DbSet<Room> Rooms { get; set; }
+        public DbSet<Message> Messages { get; set; }
         
         // ***** TESTING FOR ACTIUM CONVERSION TO EF CORE *****
         
@@ -18,19 +18,26 @@ namespace rabbit_chat.Models
         public DbSet<ActBed> ActBeds { get; set; }
         public DbSet<ActRoom> ActRooms { get; set; }
         public DbSet<ActUnit> ActUnits { get; set; }
-
-
+        
+        // public RabbitChatContext(DbContextOptions<RabbitChatContext> options) : base(options) {}
+        
         protected override void OnConfiguring(DbContextOptionsBuilder options)
             => options.UseSqlite("Data Source=rabbit-chat.db");
+        
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<RabbitUserRoom>().HasKey(x => new {x.RoomId, x.RabbitUserId});
+        }
     }
 
     public class Message
     {
         public int MessageId { get; set; }
         public int RabbitUserId { get; set; }
-        public int RoomId { get; set; }
         public DateTime? TimeSent { get; set; }
         public string MessageContent { get; set; }
+        
+        public int RoomId { get; set; }
     }
 
     public class RabbitUser
@@ -42,23 +49,28 @@ namespace rabbit_chat.Models
         public string RefreshToken { get; set; }
         public string Alias { get; set; }
         
+        public ICollection<RabbitUserRoom> RoomLink { get; set; }
         public ICollection<RabbitUser> Friends { get; set; }
     }
-
+    
     public class Room
     {
         public int RoomId { get; set; }
         public string RoomName { get; set; }
-        
-        public ICollection<RabbitUser> Users { get; set; }
-        
-        /*
-        TODO: How do you define a getter?
-        return Room.Users.Length() < 2 
-        public bool IsPersonal { get; }
-        */
+
+        public ICollection<RabbitUserRoom> RabbitUserLink { get; set; }
     }
 
+    public class RabbitUserRoom
+    {
+        public int RabbitUserId { get; set; }
+        public int RoomId { get; set; }
+        // public byte Order { get; set; }
+        
+        public RabbitUser RabbitUser { get; set; }
+        public Room Room { get; set; }
+    }
+    
     // ***** TESTING FOR ACTIUM CONVERSION TO EF CORE *****
     public class ActBed
     {
@@ -103,5 +115,4 @@ namespace rabbit_chat.Models
     }
     
     // ***** END OF TESTING FOR ACTIUM CONVERSION TO EF CORE *****
-
 }

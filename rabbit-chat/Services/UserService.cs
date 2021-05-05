@@ -9,7 +9,9 @@ namespace rabbit_chat.Services
         public static RabbitUser GetSingleUser(int userId)
         {
             using var db = new RabbitChatContext();
-            return db.RabbitUsers.Include(user => user.Friends).Single(user => user.RabbitUserId == userId);
+            // return db.RabbitUsers.Include(user => user.Friends).Single(user => user.RabbitUserId == userId);
+
+            return new RabbitUser();
         }
     }
 }

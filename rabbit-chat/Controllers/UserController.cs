@@ -17,15 +17,16 @@ namespace rabbit_chat.Controllers
         public List<RabbitUser> GetFriends([FromBody] int userId)
         {
             using var db = new RabbitChatContext();
-            return db.RabbitUsers.Include(user => user.Friends).Single(user => user.RabbitUserId == userId).Friends.ToList();
-        }
 
-        // TODO: Populate friends
+            var p = db.RabbitUsers.Include(x => x.Friends).Single(user => user.RabbitUserId == userId);
+            return p.Friends.ToList();
+        }
+        
         [HttpGet("singleuser")]
         public RabbitUser GetUser([FromBody] int userId)
         {
             using var db = new RabbitChatContext();
-            return db.RabbitUsers.Single(user => user.RabbitUserId == userId);
+            return db.RabbitUsers.Include(x => x.Friends).Single(user => user.RabbitUserId == userId);
         }
         
         // ***** END OF GET REQUESTS *****
@@ -45,17 +46,18 @@ namespace rabbit_chat.Controllers
             db.SaveChanges();
         }
 
+        // TODO: Validation that friend does not exist
         [HttpPost("addfriend")]
         public void AddFriend(AddFriendRequest addFriendRequest)
         {
             using var db = new RabbitChatContext();
-            var requestFriend = 
-                db.RabbitUsers.Single(user => user.Username == addFriendRequest.RequestedFriendUsername);
-            var requestUser =
-                db.RabbitUsers.Include(user => user.Friends).Single(user => user.RabbitUserId == addFriendRequest.SendingUserId);
-            var x = requestUser.Friends.ToList();
-            x.Add(requestFriend);
-            requestUser.Friends = x;
+            
+            var sendingUser = db.RabbitUsers.Include(x => x.Friends)
+                .Single(user => user.RabbitUserId == addFriendRequest.SendingUserId);
+            var requestedUser = db.RabbitUsers.Include(x => x.Friends)
+                .Single(user => user.Username == addFriendRequest.RequestedFriendUsername);
+            
+            sendingUser.Friends.Add(requestedUser);
             db.SaveChanges();
         }
         

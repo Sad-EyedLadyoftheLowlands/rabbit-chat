@@ -2,19 +2,36 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using rabbit_chat.Models;
 
 namespace rabbit_chat.Migrations
 {
     [DbContext(typeof(RabbitChatContext))]
-    partial class RabbitChatContextModelSnapshot : ModelSnapshot
+    [Migration("20210504224517_FriendsAssociationTable")]
+    partial class FriendsAssociationTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
                 .HasAnnotation("ProductVersion", "5.0.3");
+
+            modelBuilder.Entity("RabbitUserRoom", b =>
+                {
+                    b.Property<int>("RoomsRoomId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("UsersRabbitUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("RoomsRoomId", "UsersRabbitUserId");
+
+                    b.HasIndex("UsersRabbitUserId");
+
+                    b.ToTable("RabbitUserRoom");
+                });
 
             modelBuilder.Entity("rabbit_chat.Models.ActBed", b =>
                 {
@@ -106,6 +123,27 @@ namespace rabbit_chat.Migrations
                     b.ToTable("ActWorkflows");
                 });
 
+            modelBuilder.Entity("rabbit_chat.Models.FriendsUserAssociation", b =>
+                {
+                    b.Property<int>("FriendsUserAssociationId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("FirstUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("SecondUserId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("FriendsUserAssociationId");
+
+                    b.HasIndex("FirstUserId");
+
+                    b.HasIndex("SecondUserId");
+
+                    b.ToTable("FriendsUserAssociations");
+                });
+
             modelBuilder.Entity("rabbit_chat.Models.Message", b =>
                 {
                     b.Property<int>("MessageId")
@@ -126,6 +164,8 @@ namespace rabbit_chat.Migrations
 
                     b.HasKey("MessageId");
 
+                    b.HasIndex("RoomId");
+
                     b.ToTable("Messages");
                 });
 
@@ -141,9 +181,6 @@ namespace rabbit_chat.Migrations
                     b.Property<string>("Password")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("RabbitUserId1")
-                        .HasColumnType("INTEGER");
-
                     b.Property<string>("RefreshToken")
                         .HasColumnType("TEXT");
 
@@ -155,24 +192,7 @@ namespace rabbit_chat.Migrations
 
                     b.HasKey("RabbitUserId");
 
-                    b.HasIndex("RabbitUserId1");
-
                     b.ToTable("RabbitUsers");
-                });
-
-            modelBuilder.Entity("rabbit_chat.Models.RabbitUserRoom", b =>
-                {
-                    b.Property<int>("RoomId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("RabbitUserId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("RoomId", "RabbitUserId");
-
-                    b.HasIndex("RabbitUserId");
-
-                    b.ToTable("RabbitUserRoom");
                 });
 
             modelBuilder.Entity("rabbit_chat.Models.Room", b =>
@@ -187,6 +207,21 @@ namespace rabbit_chat.Migrations
                     b.HasKey("RoomId");
 
                     b.ToTable("Rooms");
+                });
+
+            modelBuilder.Entity("RabbitUserRoom", b =>
+                {
+                    b.HasOne("rabbit_chat.Models.Room", null)
+                        .WithMany()
+                        .HasForeignKey("RoomsRoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("rabbit_chat.Models.RabbitUser", null)
+                        .WithMany()
+                        .HasForeignKey("UsersRabbitUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("rabbit_chat.Models.ActBed", b =>
@@ -215,28 +250,32 @@ namespace rabbit_chat.Migrations
                         .HasForeignKey("ActUnitId");
                 });
 
-            modelBuilder.Entity("rabbit_chat.Models.RabbitUser", b =>
+            modelBuilder.Entity("rabbit_chat.Models.FriendsUserAssociation", b =>
                 {
-                    b.HasOne("rabbit_chat.Models.RabbitUser", null)
+                    b.HasOne("rabbit_chat.Models.RabbitUser", "FirstUser")
                         .WithMany("Friends")
-                        .HasForeignKey("RabbitUserId1");
-                });
-
-            modelBuilder.Entity("rabbit_chat.Models.RabbitUserRoom", b =>
-                {
-                    b.HasOne("rabbit_chat.Models.RabbitUser", "RabbitUser")
-                        .WithMany("RoomLink")
-                        .HasForeignKey("RabbitUserId")
+                        .HasForeignKey("FirstUserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("rabbit_chat.Models.RabbitUser", "SecondUser")
+                        .WithMany("FriendsOf")
+                        .HasForeignKey("SecondUserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("FirstUser");
+
+                    b.Navigation("SecondUser");
+                });
+
+            modelBuilder.Entity("rabbit_chat.Models.Message", b =>
+                {
                     b.HasOne("rabbit_chat.Models.Room", "Room")
-                        .WithMany("RabbitUserLink")
+                        .WithMany("Messages")
                         .HasForeignKey("RoomId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("RabbitUser");
 
                     b.Navigation("Room");
                 });
@@ -255,12 +294,12 @@ namespace rabbit_chat.Migrations
                 {
                     b.Navigation("Friends");
 
-                    b.Navigation("RoomLink");
+                    b.Navigation("FriendsOf");
                 });
 
             modelBuilder.Entity("rabbit_chat.Models.Room", b =>
                 {
-                    b.Navigation("RabbitUserLink");
+                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }

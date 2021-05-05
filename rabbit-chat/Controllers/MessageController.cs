@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using rabbit_chat.Models.Requests;
 using rabbit_chat.Models;
 
@@ -19,8 +20,9 @@ namespace rabbit_chat.Controllers
             {
                 RabbitUserId = createMessageRequest.SendingUserId,
                 MessageContent = createMessageRequest.Content,
-                RoomId = createMessageRequest.RoomId,
-                TimeSent = DateTime.Now
+                // RoomId = createMessageRequest.RoomId,
+                TimeSent = DateTime.Now,
+                
             });
             db.SaveChanges();
         }
@@ -29,7 +31,19 @@ namespace rabbit_chat.Controllers
         public List<Message> GetAllMessagesFromRoom([FromBody] int roomId)
         {
             using var db = new RabbitChatContext();
-            return db.Messages.Where(message => message.RoomId == roomId).ToList();
+            return db.Messages.Where(message => message.MessageId == roomId).ToList();
+        }
+        
+        [HttpGet]
+        public void TestGetMessagesFromRoom([FromBody] int roomId)
+        {
+            using var db = new RabbitChatContext();
+            // var test = db.Rooms.Include(x => x.Messages).Where(y => y.RoomId == roomId).Select(new Message());
+            // var test = db.Rooms.Join(Messages, room => room.RoomId,  )
+
+            // var x = db.Messages.Where(x => x.RoomId )
+            
+            // var query = from db.Roo
         }
     }
 }
