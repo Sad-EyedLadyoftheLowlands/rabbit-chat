@@ -12,37 +12,37 @@ namespace rabbit_chat.Controllers
     [Route("api/[controller]")]
     public class RoomController : ControllerBase
     {
+        /// <summary>
+        /// This will be accessed from the friend view. It should search for
+        /// a private room and if it does not exist, call CreatePersonalRoom
+        /// and return that new room. This cannot fail considering there must
+        /// always be the capability to have a private room between friends.
+        /// </summary>
+        /// <param name="request"></param>
         [HttpGet]
-        public void OpenPersonalRoom() // (PersonalRoomRequest request)
+        public void OpenPersonalRoom(PersonalRoomRequest request)
         {
             using var db = new RabbitChatContext();
-            // var t = db.Rooms.Include(x => x.UserRooms).ToList();
-
-            var t = db.RabbitUsers.Select(x => x.RoomLink).ToList();
-
-
-
-            // return new ObjectResult(RoomService.OpenPersonalRoom(request));
-        }
-
-        /*
-         * Possibly should return room so the above method does not need another query.
-         */
-        [HttpPut]
-        public void CreatePersonalRoom(PersonalRoomRequest request)
-        {
-            // RoomService.CreatePersonalRoom(request);
-            using var db = new RabbitChatContext();
-
-            var allRooms = db.Rooms.Include(x => x.RabbitUserLink).ToList();
-
-            var first = db.RabbitUsers.Single(user => user.RabbitUserId == request.RequestUserId);
-            var second =  db.RabbitUsers.Single(user => user.RabbitUserId == request.FriendId);
-
             
+            var room = db.Rooms.Include(x => x.RabbitUserLink)
+        }
+        
+        /// <summary>
+        /// Creates a personal room between two friends.
+        /// TODO: Must validate that both users are friends.
+        /// </summary>
+        /// <param name="request"></param>
+        [HttpPut]
+        public Room CreatePersonalRoom(CreatePersonalRoomRequest request)
+        {
+            using var db = new RabbitChatContext();
+
+            var first = db.RabbitUsers.Single(user => user.RabbitUserId == request.CreatingUserId);
+            var second = db.RabbitUsers.Single(user => user.RabbitUserId == request.InvitedUserId);
+
             var room = new Room
             {
-                RoomName = "test'"
+                RoomName = request.RoomName
             };
 
             room.RabbitUserLink = new List<RabbitUserRoom>
@@ -58,8 +58,11 @@ namespace rabbit_chat.Controllers
                     Room = room
                 }
             };
-            db.Rooms.Add(room);
+            
+            db.Add(room);
             db.SaveChanges();
+
+            return room;
         }
     }
 }
